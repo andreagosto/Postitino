@@ -8,6 +8,15 @@ The interface is **English by default** and comes with a built-in **Italian
 translation** (picked from your system locale, see
 [Localization](#localization)).
 
+## AI Attribution
+
+> **This project was developed entirely by an AI assistant — DeepSeek Flash.**
+>
+> All the code (UI, GTK/Cairo drawing, persistence, localization), the
+> setup script and this documentation were written by DeepSeek Flash
+> (DeepSeek V4 Flash, model `deepseek/deepseek-v4-flash`), guided by an
+> Italian user who reviewed, tested and refined the result.
+
 ## Features
 
 - **Multiple independent notes**, each in its own window.

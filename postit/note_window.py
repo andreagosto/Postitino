@@ -492,12 +492,29 @@ class NoteWindow(Gtk.Window):
 
         menu.append(Gtk.SeparatorMenuItem())
 
+        m_about = Gtk.MenuItem(tr("about"))
+        m_about.connect("activate", self._on_about)
+        menu.append(m_about)
+
         m_quit = Gtk.MenuItem(tr("quit_app"))
         m_quit.connect("activate", lambda *a: self.app.quit_app())
         menu.append(m_quit)
 
         menu.show_all()
         return menu
+
+    def _on_about(self, item):
+        dialog = Gtk.MessageDialog(
+            parent=self,
+            flags=Gtk.DialogFlags.MODAL,
+            message_type=Gtk.MessageType.INFO,
+            buttons=Gtk.ButtonsType.OK,
+        )
+        dialog.set_title(tr("about"))
+        dialog.set_markup("<b>Post-it</b>")
+        dialog.format_secondary_markup(tr("about_text").replace("\n", "<br/>"))
+        dialog.run()
+        dialog.destroy()
 
     def _on_toggle_top(self, item):
         self.note.always_on_top = item.get_active()
