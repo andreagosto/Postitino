@@ -12,3 +12,6 @@ venv/
 # Backup
 *.swp
 *~
+
+# Local-only context (not for the public repo)
+AGENTS.md
