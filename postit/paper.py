@@ -9,11 +9,9 @@ gi.require_version("Gtk", "3.0")
 try:
     gi.require_foreign("cairo")
 except ImportError:
-    print(
-        "Manca il pacchetto 'python3-gi-cairo'.\n"
-        "Installalo con:  sudo apt install python3-gi-cairo\n"
-        "Oppure esegui:   ./install.sh"
-    )
+    from .lang import tr
+
+    print(tr("missing_gi_cairo"))
     raise
 from gi.repository import Gtk
 

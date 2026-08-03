@@ -6,6 +6,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk, Gtk
 
+from .lang import tr
 from .model import Note
 from .note_window import NoteWindow
 from .storage import Storage, default_storage_path
@@ -150,11 +151,11 @@ class PostItApp(Gtk.Application):
         except (ImportError, ValueError):
             return
         menu = Gtk.Menu()
-        m_new = Gtk.MenuItem("Nuova nota")
+        m_new = Gtk.MenuItem(tr("new_note_menu"))
         m_new.connect("activate", lambda *a: self.new_note())
         menu.append(m_new)
         menu.append(Gtk.SeparatorMenuItem())
-        m_quit = Gtk.MenuItem("Esci")
+        m_quit = Gtk.MenuItem(tr("quit"))
         m_quit.connect("activate", lambda *a: self.quit())
         menu.append(m_quit)
         menu.show_all()

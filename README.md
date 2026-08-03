@@ -1,20 +1,27 @@
-# Post-it per Ubuntu (GNOME)
+# Post-it for Ubuntu (GNOME)
 
-App desktop per attaccare post-it sul desktop: note veloci e liste to-do
-con checkbox. Scritta in **Python + GTK3**, salvata automaticamente su file
-locale (JSON) in `~/.local/share/postit/notes.json`.
+Desktop sticky notes for Ubuntu: quick notes and to-do lists with checkboxes.
+Written in **Python + GTK3**, auto-saved to a local JSON file at
+`~/.local/share/postit/notes.json`.
 
-## Funzionalità
+The interface is **English by default** and comes with a built-in **Italian
+translation** (picked from your system locale, see
+[Localization](#localization)).
 
-- **Più note** indipendenti, ognuna in una propria finestra.
-- Ogni nota può essere **nota di testo** o **lista to-do** (checkbox).
-- **Persistenza automatica**: ogni modifica viene salvata da sola (e al riavvio le note ricompaiono dove le hai lasciate).
-- **Sul desktop**: di default le note restano nel "livello desktop", cioè le vedi solo quando il desktop è visibile (non in primo piano).
-  Dal menu di ogni nota puoi attivare **"Sempre in primo piano"**, come fai con il terminale.
-- **Grafica realistica**: carta con bordi irregolari, ombra e nastro adesivo, leggermente ruotata — come un post-it vero attaccato alla parete.
-- Colore della carta personalizzabile (giallo, rosa, azzurro, verde, bianco).
+## Features
 
-## Installazione
+- **Multiple independent notes**, each in its own window.
+- Every note can be a **text note** or a **to-do list** (checkboxes).
+- **Automatic persistence**: every change is saved on its own (notes come
+  back where you left them after a restart).
+- **Stuck to the desktop**: by default notes sit in the desktop layer — you
+  only see them when the desktop is clean (not on top of windows). From each
+  note's menu you can enable **"Always on top"**, just like a terminal.
+- **Realistic look**: irregular hand-cut edges, drop shadow, tape and a
+  slight rotation — like a real sticky note stuck on a wall.
+- Customizable paper color (yellow, pink, blue, green, white).
+
+## Installation
 
 ```bash
 cd ~/IA/Post-it
@@ -22,76 +29,91 @@ chmod +x install.sh
 ./install.sh
 ```
 
-Lo script installa le dipendenze se mancano, crea la voce nel menu
-applicazioni e abilita l'avvio automatico al login.
+The script installs missing dependencies, creates the applications-menu entry
+and enables autostart at login.
 
-### Dipendenze (se vuoi installarle a mano)
+### Dependencies (to install manually)
 
 ```bash
 sudo apt install python3-gi python3-gi-cairo python3-cairo \
     gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
 ```
 
-> **Importante**: `python3-gi-cairo` è indispensabile (l'app usa `cairo.Context`
-> per disegnare la carta). Se vedi l'errore
+> **Important**: `python3-gi-cairo` is required (the paper is drawn with
+> `cairo.Context`). If you see
 > `Couldn't find foreign struct converter for 'cairo.Context'`,
-> significa che manca proprio questo pacchetto.
+> that package is missing.
 
-## Uso
+## Usage
 
-| Azione | Come |
+| Action | How |
 |---|---|
-| Avviare | `python3 ~/IA/Post-it/main.py` (o dal menu applicazioni) |
-| Nuova nota | Eseguire di nuovo `main.py`, oppure bottone **+** su una nota, oppure voce "Nuova nota" nel menu |
-| Nascondere una nota | Crocetta **×** (resta salvata) |
-| Eliminare | Menu (⋮) → **Elimina nota** |
-| Cambiare tipo/colore/fissare | Menu (⋮) → Tipo di nota / Colore / Sempre in primo piano |
-| Spostare la nota | Trascinare la barra in alto |
-| Uscire | Menu (⋮) → Esci dall'app (o icona nella barra in alto, se disponibile) |
+| Launch | `python3 ~/IA/Post-it/main.py` (or from the applications menu) |
+| New note | Run `main.py` again, press the **+** button on a note, or use the menu → **New note** |
+| Hide a note | **×** button (it stays saved) |
+| Delete | Menu (⋮) → **Delete note** |
+| Change type/color/fix | Menu (⋮) → Note type / Color / Always on top |
+| Move a note | Drag the top bar |
+| Quit | Menu (⋮) → **Quit app** (or the tray icon, if available) |
 
-> **Nota sull'icona nella barra (tray)**: funziona se hai l'estensione
-> *AppIndicator* di GNOME (attiva di default su Ubuntu).
+> **Tray icon note**: it works if you have the *AppIndicator* GNOME
+> extension (enabled by default on Ubuntu).
 
-> **Nota single-instance**: l'app è una sola istanza. Se è già aperta,
-> rieseguire `main.py` non apre una seconda copia ma crea solo una nuova nota
-> nell'istanza esistente. (Per forzare più istanze per test: `POSTIT_APP_ID=... python3 main.py`.)
+> **Single-instance note**: the app is a single instance. If it is already
+> running, running `main.py` again does not open a second copy — it just
+> creates a new note in the running instance. (For multiple test instances:
+> `POSTIT_APP_ID=... python3 main.py`.)
 
-## Comportamento sul desktop (Wayland vs Xorg)
+## Localization
 
-L'app gestisce da sola la compatibilità col tuo ambiente:
+The UI language is detected from your environment:
 
-- Su **Xorg** l'app gira direttamente sul backend X11: livello desktop e
-  "sempre in primo piano" funzionano al 100%.
-- Su **Wayland** (sessione GNOME di default) GTK3 gira come client nativo
-  Wayland, dove *`set_keep_above` è un no-op*: per questo "sempre in primo
-  piano" non funzionerebbe. L'app quindi **forza automaticamente il backend
-  X11 (via XWayland)**, che il window manager di GNOME gestisce correttamente.
+- `POSTIT_LANG=en|it` takes precedence if set.
+- Otherwise the system locale (`LC_ALL`, `LC_MESSAGES`, `LANG`) is used.
 
-Il "livello desktop" è realizzato con una **finestra normale senza
-decorazioni** (niente `_NET_WM_WINDOW_TYPE_DESKTOP` né `keep_below`):
-su GNOME Shell quei meccanismi mettono la finestra *sotto* il desktop
-(Nautilus, a tutto schermo) rendendola **insensibile al mouse**. Con una
-finestra normale la nota riceve sempre click e digitazione, e quando apri
-altre finestre queste la coprono (il comportamento "attaccata al desktop").
-"Sempre in primo piano" usa `keep_above`.
+Examples:
 
-Puoi forzare manualmente il backend con la variabile `POSTIT_BACKEND`
-(es. `POSTIT_BACKEND=wayland python3 main.py`).
+```bash
+POSTIT_LANG=it python3 main.py    # force Italian
+POSTIT_LANG=en python3 main.py    # force English
+```
 
-## Struttura
+## Desktop behaviour (Wayland vs Xorg)
+
+The app handles compatibility with your environment automatically:
+
+- On **Xorg** it runs directly on the X11 backend: desktop level and
+  "always on top" work 100%.
+- On **Wayland** (default GNOME session) GTK3 runs as a native Wayland
+  client, where *`set_keep_above` is a no-op*: "always on top" would not
+  work. The app therefore **automatically forces the X11 backend (via
+  XWayland)**, which GNOME's window manager handles correctly.
+
+The "desktop level" is implemented as an **undecorated normal window** (no
+`_NET_WM_WINDOW_TYPE_DESKTOP`, no `keep_below`): on GNOME Shell those
+mechanisms put the window *below* the desktop (Nautilus, fullscreen), making
+it **unresponsive to the mouse**. A normal window always receives clicks and
+typing; other windows cover it when you open them (the "stuck to the
+desktop" behaviour). "Always on top" uses `keep_above`.
+
+You can force the backend manually with `POSTIT_BACKEND`
+(e.g. `POSTIT_BACKEND=wayland python3 main.py`).
+
+## Structure
 
 ```
-main.py              avvio
-postit/app.py        applicazione (multi-note, tray, css)
-postit/note_window.py finestra di una nota (testo/todo, menu)
-postit/paper.py      disegno della carta (cairo)
-postit/model.py      dati: Note e TodoItem
-postit/storage.py    salvataggio JSON
+main.py              entry point (backend selection)
+postit/app.py        application (multi-note, tray, css)
+postit/note_window.py note window (text/todo, menu)
+postit/paper.py      paper drawing (cairo)
+postit/model.py      data: Note and TodoItem
+postit/storage.py    JSON persistence
+postit/lang.py       UI localization (EN/IT)
 install.sh           setup + autostart
 ```
 
-## Prossimi passi (idee)
+## Roadmap (ideas)
 
-- Sincronizzazione su cloud o database
-- Riordino dei task tramite drag & drop
-- Data di scadenza / promemoria
+- Cloud / database sync
+- Drag & drop reordering of tasks
+- Due dates / reminders

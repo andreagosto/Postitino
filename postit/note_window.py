@@ -4,6 +4,7 @@ gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk, GLib, Gtk
 
+from .lang import tr
 from .model import TodoItem
 from .paper import COLORS, PostItPaper
 
@@ -86,7 +87,7 @@ class NoteWindow(Gtk.Window):
         self.mode_label.set_name("postit-mode")
         self.mode_label.set_halign(Gtk.Align.START)
 
-        btn_new = self._icon_button("list-add-symbolic", "Nuova nota")
+        btn_new = self._icon_button("list-add-symbolic", tr("new_note"))
         btn_new.connect("clicked", lambda *a: self.app.new_note())
 
         self.menu_btn = Gtk.MenuButton()
@@ -96,7 +97,7 @@ class NoteWindow(Gtk.Window):
         self.menu_btn.set_popup(self.menu)
         self.menu_btn.set_relief(Gtk.ReliefStyle.NONE)
 
-        btn_close = self._icon_button("window-close-symbolic", "Nascondi")
+        btn_close = self._icon_button("window-close-symbolic", tr("hide"))
         btn_close.connect("clicked", lambda *a: self.hide())
 
         header.pack_start(btn_new, False, False, 0)
@@ -117,7 +118,7 @@ class NoteWindow(Gtk.Window):
         titlebox.set_margin_bottom(2)
         self.title_entry = Gtk.Entry()
         self.title_entry.set_name("postit-title")
-        self.title_entry.set_placeholder_text("Titolo…")
+        self.title_entry.set_placeholder_text(tr("title_placeholder"))
         self.title_entry.set_hexpand(True)
         self.title_entry.set_has_frame(False)
         self.title_entry.connect("changed", self._on_title_changed)
@@ -177,9 +178,9 @@ class NoteWindow(Gtk.Window):
 
         addrow = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4)
         self.add_entry = Gtk.Entry()
-        self.add_entry.set_placeholder_text("Aggiungi task…")
+        self.add_entry.set_placeholder_text(tr("add_todo"))
         self.add_entry.connect("activate", self._on_add_todo)
-        btn = self._icon_button("list-add-symbolic", "Aggiungi")
+        btn = self._icon_button("list-add-symbolic", tr("add"))
         btn.connect("clicked", self._on_add_todo)
         addrow.pack_start(self.add_entry, True, True, 0)
         addrow.pack_start(btn, False, False, 0)
@@ -194,31 +195,30 @@ class NoteWindow(Gtk.Window):
             for it in self.note.items:
                 self._add_todo_row(it)
             self._set_page(self.todo_page)
-            self.mode_label.set_text("TO-DO")
+            self.mode_label.set_text(tr("mode_todo"))
         else:
             buf = self.text_view.get_buffer()
             buf.set_text(self.note.content)
             self._set_page(self.text_page)
-            self.mode_label.set_text("NOTA")
+            self.mode_label.set_text(tr("mode_note"))
 
         if self.note.x is not None and self.note.y is not None:
             self.move(self.note.x, self.note.y)
         self.resize(self.note.w, self.note.h)
 
     def _apply_behavior(self):
-        # Finestra NORMAL senza livelli speciali: su GNOME/Mutter sia il tipo
-        # DESKTOP sia keep_below mettono la finestra SOTTO il desktop
-        # (Nautilus, a tutto schermo) rendendola non cliccabile. Con NORMAL la
-        # nota riceve sempre il mouse; quando apri altre finestre queste la
-        # coprono (e' il comportamento "attaccata al desktop"). "Sempre in
-        # primo piano" = keep_above.
+        # NORMAL window with no special levels: on GNOME/Mutter both the
+        # DESKTOP type and keep_below put the window BELOW the desktop
+        # (Nautilus, fullscreen), making it unclickable. With NORMAL the note
+        # always receives the mouse; other windows cover it when opened (that
+        # is the "stuck to the desktop" behaviour). "Always on top" = keep_above.
         self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
         self.set_keep_below(False)
         self.set_keep_above(self.note.always_on_top)
 
     def _refresh_level(self):
-        """Riapplica keep_above a runtime (hide->show->present: il WM
-        dimentica gli stati _NET_WM_STATE durante hide)."""
+        """Re-apply keep_above at runtime (hide->show->present: the WM
+        forgets _NET_WM_STATE during hide)."""
         was_visible = self.get_visible()
         self.hide()
         self.set_type_hint(Gdk.WindowTypeHint.NORMAL)
@@ -231,8 +231,8 @@ class NoteWindow(Gtk.Window):
     # ------------------------------------------------------------- signals
 
     def on_header_press(self, widget, event):
-        # protezione: ignora se un drag (move/resize) e' gia' attivo, per
-        # evitare che un doppio click lasci un grab di input pendente
+        # guard: ignore if a drag (move/resize) is already active, so a
+        # double click cannot leave a pending input grab
         if self._drag_active:
             return True
         if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1:
@@ -242,9 +242,9 @@ class NoteWindow(Gtk.Window):
         return True
 
     def _arm_drag_timeout(self):
-        # rete di sicurezza: se il release non arriva mai (grab perso su
-        # XWayland/multi-monitor) il flag si resetta da solo e l'app non
-        # resta bloccata
+        # safety net: if the release never arrives (lost grab on
+        # XWayland/multi-monitor) the flag resets itself and the app
+        # never stays stuck
         if self._drag_timeout:
             GLib.source_remove(self._drag_timeout)
         self._drag_timeout = GLib.timeout_add(6000, self._reset_drag)
@@ -325,8 +325,8 @@ class NoteWindow(Gtk.Window):
         return False
 
     def on_realize(self, widget):
-        # keep_above va applicato a finestra realizzata/mappata per essere
-        # gestito dal WM (soprattutto su X11/XWayland)
+        # keep_above must be applied once the window is realized/mapped so
+        # the WM honours it (especially on X11/XWayland)
         self._apply_behavior()
 
     def on_window_release(self, widget, event):
@@ -398,7 +398,7 @@ class NoteWindow(Gtk.Window):
         if buf.get_tag_table().lookup("done") is None:
             buf.create_tag("done", strikethrough=True, foreground="#6a6a6a")
 
-        delb = self._icon_button("edit-delete-symbolic", "Rimuovi")
+        delb = self._icon_button("edit-delete-symbolic", tr("remove"))
         delb.set_relief(Gtk.ReliefStyle.NONE)
 
         h.pack_start(chk, False, False, 0)
@@ -447,13 +447,13 @@ class NoteWindow(Gtk.Window):
     def _build_menu(self):
         menu = Gtk.Menu()
 
-        m_new = Gtk.MenuItem("Nuova nota")
+        m_new = Gtk.MenuItem(tr("new_note_menu"))
         m_new.connect("activate", lambda *a: self.app.new_note())
         menu.append(m_new)
 
         menu.append(Gtk.SeparatorMenuItem())
 
-        self.m_top = Gtk.CheckMenuItem("Sempre in primo piano")
+        self.m_top = Gtk.CheckMenuItem(tr("always_on_top"))
         self.m_top.set_active(self.note.always_on_top)
         self.m_top.connect("activate", self._on_toggle_top)
         menu.append(self.m_top)
@@ -468,31 +468,31 @@ class NoteWindow(Gtk.Window):
             it.connect("activate", self._on_color, c)
             colmenu.append(it)
             self.m_colors[c] = it
-        colitem = Gtk.MenuItem("Colore")
+        colitem = Gtk.MenuItem(tr("color"))
         colitem.set_submenu(colmenu)
         menu.append(colitem)
 
         typemenu = Gtk.Menu()
-        self.m_text = Gtk.RadioMenuItem("Nota di testo")
+        self.m_text = Gtk.RadioMenuItem(tr("text_note"))
         typemenu.append(self.m_text)
-        self.m_todo = Gtk.RadioMenuItem.new_with_label_from_widget(self.m_text, "Lista to-do")
+        self.m_todo = Gtk.RadioMenuItem.new_with_label_from_widget(self.m_text, tr("todo_list"))
         self.m_todo.set_active(self.note.type == "todo")
         typemenu.append(self.m_todo)
         self.m_text.connect("activate", self._on_type, "text")
         self.m_todo.connect("activate", self._on_type, "todo")
-        typeitem = Gtk.MenuItem("Tipo di nota")
+        typeitem = Gtk.MenuItem(tr("note_type"))
         typeitem.set_submenu(typemenu)
         menu.append(typeitem)
 
         menu.append(Gtk.SeparatorMenuItem())
 
-        m_del = Gtk.MenuItem("Elimina nota")
+        m_del = Gtk.MenuItem(tr("delete_note"))
         m_del.connect("activate", lambda *a: self.app.delete_note(self))
         menu.append(m_del)
 
         menu.append(Gtk.SeparatorMenuItem())
 
-        m_quit = Gtk.MenuItem("Esci dall'app")
+        m_quit = Gtk.MenuItem(tr("quit_app"))
         m_quit.connect("activate", lambda *a: self.app.quit_app())
         menu.append(m_quit)
 
@@ -537,7 +537,7 @@ class NoteWindow(Gtk.Window):
                 for it in self.note.items:
                     self._add_todo_row(it)
                 self._set_page(self.todo_page)
-                self.mode_label.set_text("TO-DO")
+                self.mode_label.set_text(tr("mode_todo"))
             else:
                 lines = "\n".join(it.text for it in self.note.items)
                 self.note.type = "text"
@@ -545,7 +545,7 @@ class NoteWindow(Gtk.Window):
                 buf = self.text_view.get_buffer()
                 buf.set_text(lines)
                 self._set_page(self.text_page)
-                self.mode_label.set_text("NOTA")
+                self.mode_label.set_text(tr("mode_note"))
             self.schedule_save()
         finally:
             self._type_lock = False

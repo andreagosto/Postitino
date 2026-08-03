@@ -2,11 +2,11 @@
 import os
 import sys
 
-# Su sessione Wayland, GTK3 gira come client nativo dove gtk_window_set_keep_above
-# e' un no-op: "sempre in primo piano" non funziona. Usando il backend X11
-# (via XWayland) il window manager gestisce sia il livello desktop sia
-# keep_above (_NET_WM_STATE_ABOVE). Forziamo x11 solo quando c'e' un DISPLAY.
-# Sovrascrivibile con la variabile POSTIT_BACKEND.
+# On Wayland sessions GTK3 runs as a native client where
+# gtk_window_set_keep_above is a no-op: "always on top" would not work.
+# Using the X11 backend (via XWayland) the window manager handles both the
+# desktop level and keep_above (_NET_WM_STATE_ABOVE). Force x11 only when a
+# DISPLAY is available. Overridable with the POSTIT_BACKEND variable.
 if os.environ.get("POSTIT_BACKEND"):
     os.environ["GDK_BACKEND"] = os.environ["POSTIT_BACKEND"]
 elif os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland" and os.environ.get("DISPLAY"):
