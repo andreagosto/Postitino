@@ -4,7 +4,7 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, GdkPixbuf, Gtk
 
 from .lang import tr
 from .model import Note
@@ -12,6 +12,10 @@ from .note_window import NoteWindow
 from .storage import Storage, default_storage_path
 
 APP_ID = os.environ.get("POSTIT_APP_ID", "it.andrea.postitino")
+ICON_NAME = "it.andrea.postitino"
+ICON_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "postitino.svg"
+)
 
 CSS = b"""
 #postit-paper { background: transparent; }
@@ -75,8 +79,17 @@ class PostItApp(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         self.hold()
+        self._setup_icon()
         self._setup_css()
         self._setup_tray()
+
+    def _setup_icon(self):
+        try:
+            if os.path.exists(ICON_PATH):
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(ICON_PATH)
+                Gtk.Window.set_default_icon(pixbuf)
+        except Exception:
+            pass
 
     def do_activate(self):
         if not self._started:
@@ -161,8 +174,8 @@ class PostItApp(Gtk.Application):
         menu.show_all()
 
         ind = AppIndicator3.Indicator.new(
-            "it.andrea.postitino",
-            "accessories-text-editor",
+            APP_ID,
+            ICON_NAME,
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
         )
         ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)

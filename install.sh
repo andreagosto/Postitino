@@ -4,6 +4,8 @@ set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 NAME="Postitino"
 EXEC="python3 $DIR/main.py"
+ICON_NAME="it.andrea.postitino"
+ICON_DEST="$HOME/.local/share/icons/hicolor/scalable/apps/$ICON_NAME.svg"
 
 echo "==> Verifico Python, GTK3 e gi-cairo..."
 
@@ -28,25 +30,32 @@ if [ -n "$NEED" ]; then
     sudo apt install -y $NEED gir1.2-ayatanaappindicator3-0.1
 fi
 
+echo "==> Installo l'icona nel tema icone…"
+mkdir -p "$(dirname "$ICON_DEST")"
+cp "$DIR/postitino.svg" "$ICON_DEST"
+if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -f -t "$HOME/.local/share/icons/hicolor" >/dev/null 2>&1 || true
+fi
+
 echo "==> Creo la voce nel menu applicazioni…"
 mkdir -p "$HOME/.local/share/applications"
-cat > "$HOME/.local/share/applications/postit.desktop" <<EOF
+cat > "$HOME/.local/share/applications/postitino.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=$NAME
-Comment=Note e to-do sul desktop
+Comment=Desktop sticky notes and to-do lists
 Exec=$EXEC
-Icon=accessories-text-editor
+Icon=$ICON_NAME
 Terminal=false
 Categories=Utility;
 EOF
 
 echo "==> Abilito l'avvio automatico al login…"
 mkdir -p "$HOME/.config/autostart"
-cp "$HOME/.local/share/applications/postit.desktop" "$HOME/.config/autostart/postit.desktop"
+cp "$HOME/.local/share/applications/postitino.desktop" "$HOME/.config/autostart/postitino.desktop"
 
 echo ""
 echo "Fatto!"
 echo "Avvia con:  python3 $DIR/main.py"
 echo "Oppure dal menu applicazioni: $NAME"
-echo "Per togliere l'autostart: rm $HOME/.config/autostart/postit.desktop"
+echo "Per togliere l'autostart: rm $HOME/.config/autostart/postitino.desktop"

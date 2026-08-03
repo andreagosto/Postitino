@@ -29,6 +29,8 @@ translation** (picked from your system locale, see
 - **Realistic look**: irregular hand-cut edges, drop shadow, tape and a
   slight rotation — like a real sticky note stuck on a wall.
 - Customizable paper color (yellow, pink, blue, green, white).
+- Custom app icon (post-it with tape) for the window, the tray and the
+  applications menu.
 
 ## Installation
 
@@ -112,13 +114,14 @@ You can force the backend manually with `POSTIT_BACKEND`
 
 ```
 main.py              entry point (backend selection)
-postit/app.py        application (multi-note, tray, css)
+postitino.svg        application icon (SVG)
+postit/app.py        application (multi-note, tray, icon, css)
 postit/note_window.py note window (text/todo, menu)
 postit/paper.py      paper drawing (cairo)
 postit/model.py      data: Note and TodoItem
 postit/storage.py    JSON persistence
 postit/lang.py       UI localization (EN/IT)
-install.sh           setup + autostart
+install.sh           setup + autostart + icon install
 ```
 
 ## Roadmap (ideas)
