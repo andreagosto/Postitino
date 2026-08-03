@@ -22,9 +22,9 @@ STRINGS = {
         "delete_note": "Delete note",
         "quit_app": "Quit app",
         "quit": "Quit",
-        "about": "About Post-it",
+        "about": "About Postitino",
         "about_text": (
-            "Post-it for Ubuntu — desktop sticky notes.\n\n"
+            "Postitino for Ubuntu — desktop sticky notes.\n\n"
             "This app was developed entirely by an AI assistant:\n"
             "DeepSeek Flash (deepseek/deepseek-v4-flash)."
         ),
@@ -52,9 +52,9 @@ STRINGS = {
         "delete_note": "Elimina nota",
         "quit_app": "Esci dall'app",
         "quit": "Esci",
-        "about": "Informazioni su Post-it",
+        "about": "Informazioni su Postitino",
         "about_text": (
-            "Post-it per Ubuntu — note adesive sul desktop.\n\n"
+            "Postitino per Ubuntu — note adesive sul desktop.\n\n"
             "Questa app è stata sviluppata interamente da un assistente IA:\n"
             "DeepSeek Flash (deepseek/deepseek-v4-flash)."
         ),

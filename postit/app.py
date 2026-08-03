@@ -11,7 +11,7 @@ from .model import Note
 from .note_window import NoteWindow
 from .storage import Storage, default_storage_path
 
-APP_ID = os.environ.get("POSTIT_APP_ID", "it.andrea.postit")
+APP_ID = os.environ.get("POSTIT_APP_ID", "it.andrea.postitino")
 
 CSS = b"""
 #postit-paper { background: transparent; }
@@ -161,7 +161,7 @@ class PostItApp(Gtk.Application):
         menu.show_all()
 
         ind = AppIndicator3.Indicator.new(
-            "it.andrea.postit",
+            "it.andrea.postitino",
             "accessories-text-editor",
             AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
         )

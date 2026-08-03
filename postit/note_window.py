@@ -35,7 +35,7 @@ class NoteWindow(Gtk.Window):
         self.note = note
         self._save_timer = None
 
-        self.set_title("Post-it")
+        self.set_title("Postitino")
         self.set_decorated(False)
         self.set_app_paintable(True)
         self.set_resizable(True)
@@ -511,7 +511,7 @@ class NoteWindow(Gtk.Window):
             buttons=Gtk.ButtonsType.OK,
         )
         dialog.set_title(tr("about"))
-        dialog.set_markup("<b>Post-it</b>")
+        dialog.set_markup("<b>Postitino</b>")
         dialog.format_secondary_markup(tr("about_text").replace("\n", "<br/>"))
         dialog.run()
         dialog.destroy()

@@ -1,4 +1,4 @@
-# Post-it for Ubuntu (GNOME)
+# Postitino for Ubuntu (GNOME)
 
 Desktop sticky notes for Ubuntu: quick notes and to-do lists with checkboxes.
 Written in **Python + GTK3**, auto-saved to a local JSON file at

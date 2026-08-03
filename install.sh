@@ -2,7 +2,7 @@
 set -e
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-NAME="Post-it"
+NAME="Postitino"
 EXEC="python3 $DIR/main.py"
 
 echo "==> Verifico Python, GTK3 e gi-cairo..."
