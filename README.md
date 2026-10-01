@@ -21,13 +21,19 @@ translation** (picked from your system locale, see
 
 - **Multiple independent notes**, each in its own window.
 - Every note can be a **text note** or a **to-do list** (checkboxes).
-- **Automatic persistence**: every change is saved on its own (notes come
-  back where you left them after a restart).
+- **Task reordering**: drag & drop tasks with the grip handle or move them with `Alt+Up` / `Alt+Down`.
+- **Automatic persistence & safe backup**: every change is debounced and saved automatically to `notes.json` with fallback backup (`.bak`).
 - **Stuck to the desktop**: by default notes sit in the desktop layer — you
   only see them when the desktop is clean (not on top of windows). From each
   note's menu you can enable **"Always on top"**, just like a terminal.
 - **Realistic look**: irregular hand-cut edges, drop shadow, tape and a
   slight rotation — like a real sticky note stuck on a wall.
+- **Straight note option**: straighten any note to 0° with one click from the menu.
+- **Customizable font size**: adjust text size per note (`Ctrl++`, `Ctrl+-`, `Ctrl+0`).
+- **Quick copy to clipboard**: copy entire note text or markdown-formatted checklist (`Ctrl+Shift+C`).
+- **Clear completed tasks**: one-click button to purge finished to-do tasks.
+- **Delete confirmation**: protection against accidental deletion.
+- **Tray integration**: Ayatana/AppIndicator tray with "Show all", "Hide all", and direct note selection.
 - Customizable paper color (yellow, pink, blue, green, white).
 - Custom app icon (post-it with tape) for the window, the tray and the
   applications menu.
@@ -60,15 +66,20 @@ sudo apt install python3-gi python3-gi-cairo python3-cairo \
 | Action | How |
 |---|---|
 | Launch | `python3 ~/IA/Post-it/main.py` (or from the applications menu) |
-| New note | Run `main.py` again, press the **+** button on a note, or use the menu → **New note** |
-| Hide a note | **×** button (it stays saved) |
-| Delete | Menu (⋮) → **Delete note** |
-| Change type/color/fix | Menu (⋮) → Note type / Color / Always on top |
+| New note | Run `main.py` again, press **+** button on a note, menu → **New note**, or **Ctrl+N** |
+| Hide a note | **×** button, or **Ctrl+W** (it stays saved; reopen from the tray menu) |
+| Show/Hide all | From the tray icon: **Show all notes** / **Hide all notes** |
+| Delete note | Menu (⋮) → **Delete note**, or **Ctrl+Shift+D** (with confirmation) |
+| Reorder tasks | Drag the grip handle (⋮⋮) or press **Alt+Up** / **Alt+Down** in a task |
+| Clear completed | Click the broom/clear button next to Add task, or Menu → **Clear completed** |
+| Adjust text size | **Ctrl++** (larger), **Ctrl+-** (smaller), **Ctrl+0** (reset), or Menu → **Text size** |
+| Straighten note | Menu (⋮) → **Straight note (0°)** |
+| Copy note | Menu (⋮) → **Copy note**, or **Ctrl+Shift+C** (markdown format) |
+| Change type/color/top | Menu (⋮) → Note type / Color / Always on top |
 | Move a note | Drag the top bar |
-| Quit | Menu (⋮) → **Quit app** (or the tray icon, if available) |
+| Quit | Menu (⋮) → **Quit app**, or tray icon → **Quit** |
 
-> **Tray icon note**: it works if you have the *AppIndicator* GNOME
-> extension (enabled by default on Ubuntu).
+> **Tray icon note**: works with Ayatana / AppIndicator (enabled by default on Ubuntu with the AppIndicator extension).
 
 > **Single-instance note**: the app is a single instance. If it is already
 > running, running `main.py` again does not open a second copy — it just
@@ -116,10 +127,10 @@ You can force the backend manually with `POSTIT_BACKEND`
 main.py              entry point (backend selection)
 postitino.svg        application icon (SVG)
 postit/app.py        application (multi-note, tray, icon, css)
-postit/note_window.py note window (text/todo, menu)
+postit/note_window.py note window (text/todo, menu, shortcuts, DnD)
 postit/paper.py      paper drawing (cairo)
 postit/model.py      data: Note and TodoItem
-postit/storage.py    JSON persistence
+postit/storage.py    JSON persistence + backup fallback
 postit/lang.py       UI localization (EN/IT)
 install.sh           setup + autostart + icon install
 ```
@@ -127,5 +138,5 @@ install.sh           setup + autostart + icon install
 ## Roadmap (ideas)
 
 - Cloud / database sync
-- Drag & drop reordering of tasks
 - Due dates / reminders
+

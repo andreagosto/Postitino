@@ -34,6 +34,8 @@ class Note:
         self.h = 300
         self.rotation = round(random.uniform(-2.2, 2.2), 2)
         self.always_on_top = False
+        self.font_size = 13
+        self.visible = True
 
     def to_dict(self):
         return {
@@ -49,6 +51,8 @@ class Note:
             "h": self.h,
             "rotation": self.rotation,
             "always_on_top": self.always_on_top,
+            "font_size": self.font_size,
+            "visible": self.visible,
         }
 
     @classmethod
@@ -66,4 +70,6 @@ class Note:
         n.h = int(d.get("h", 300))
         n.rotation = float(d.get("rotation", 0.0))
         n.always_on_top = bool(d.get("always_on_top", False))
+        n.font_size = int(d.get("font_size", 13))
+        n.visible = bool(d.get("visible", True))
         return n

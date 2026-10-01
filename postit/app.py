@@ -31,16 +31,16 @@ CSS = b"""
     background-color: transparent;
     background-image: none;
 }
-#postit-paper textview text { font-size: 13px; }
 #postit-paper button { background: transparent; border: none; box-shadow: none; padding: 2px; }
 #postit-paper button:hover { background-color: rgba(0, 0, 0, 0.10); }
+#postit-paper #postit-drag-handle { opacity: 0.40; }
+#postit-paper #postit-drag-handle:hover { opacity: 0.95; }
 #postit-paper entry { background-color: rgba(255, 255, 255, 0.45);
                       border: none; border-radius: 4px; box-shadow: none; padding: 3px 6px; }
 #postit-paper #postit-mode { color: rgba(0, 0, 0, 0.55); font-size: 10px; font-weight: bold; }
 #postit-paper #postit-title {
     background-color: transparent;
     color: rgba(0, 0, 0, 0.85);
-    font-size: 15px;
     font-weight: bold;
     caret-color: rgba(0, 0, 0, 0.7);
     padding: 0 4px;
@@ -99,6 +99,11 @@ class PostItApp(Gtk.Application):
             self.new_note()
 
     def do_shutdown(self):
+        for win in self.windows.values():
+            if win.get_visible():
+                pos = win.get_position()
+                if pos and (pos[0] != 0 or pos[1] != 0):
+                    win.note.x, win.note.y = pos[0], pos[1]
         self.storage.flush()
         Gtk.Application.do_shutdown(self)
 
@@ -109,6 +114,9 @@ class PostItApp(Gtk.Application):
             n = Note()
             self.storage.notes[n.id] = n
             self.storage.schedule_save()
+        if all(not getattr(n, "visible", True) for n in self.storage.notes.values()):
+            first = next(iter(self.storage.notes.values()))
+            first.visible = True
         for n in self.storage.notes.values():
             self.open_window(n)
 
@@ -129,17 +137,24 @@ class PostItApp(Gtk.Application):
         win = NoteWindow(self, note)
         win.connect("destroy", self._on_window_destroyed, note)
         self.windows[note.id] = win
-        win.show_all()
+        if getattr(note, "visible", True):
+            win.show_all()
+        else:
+            win.realize()
+        self.update_tray()
         return win
 
     def _on_window_destroyed(self, win, note):
         self.windows.pop(note.id, None)
+        self.update_tray()
 
     def delete_note(self, win):
         note = win.note
         self.storage.notes.pop(note.id, None)
         self.save()
+        self.windows.pop(note.id, None)
         win.destroy()
+        self.update_tray()
 
     def save(self):
         self.storage.schedule_save()
@@ -158,29 +173,108 @@ class PostItApp(Gtk.Application):
     # ---------------------------------------------------------------- tray
 
     def _setup_tray(self):
-        try:
-            gi.require_version("AppIndicator3", "0.1")
-            from gi.repository import AppIndicator3
-        except (ImportError, ValueError):
+        AppIndicator = None
+        for name in ("AyatanaAppIndicator3", "AppIndicator3"):
+            try:
+                gi.require_version(name, "0.1")
+                mod = __import__("gi.repository", fromlist=[name])
+                AppIndicator = getattr(mod, name)
+                break
+            except (ImportError, ValueError):
+                continue
+        if not AppIndicator:
             return
-        menu = Gtk.Menu()
-        m_new = Gtk.MenuItem(tr("new_note_menu"))
-        m_new.connect("activate", lambda *a: self.new_note())
-        menu.append(m_new)
-        menu.append(Gtk.SeparatorMenuItem())
-        m_quit = Gtk.MenuItem(tr("quit"))
-        m_quit.connect("activate", lambda *a: self.quit())
-        menu.append(m_quit)
-        menu.show_all()
 
-        ind = AppIndicator3.Indicator.new(
+        self._AppIndicator = AppIndicator
+        self._tray = AppIndicator.Indicator.new(
             APP_ID,
             ICON_NAME,
-            AppIndicator3.IndicatorCategory.APPLICATION_STATUS,
+            AppIndicator.IndicatorCategory.APPLICATION_STATUS,
         )
-        ind.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-        ind.set_menu(menu)
-        self._tray = ind
+        self._tray.set_status(AppIndicator.IndicatorStatus.ACTIVE)
+        self.update_tray()
+
+    def update_tray(self):
+        if not self._tray:
+            return
+        menu = Gtk.Menu()
+
+        m_new = Gtk.MenuItem(label=tr("new_note_menu"))
+        m_new.connect("activate", lambda *a: self.new_note())
+        menu.append(m_new)
+
+        m_show_all = Gtk.MenuItem(label=tr("show_all_notes"))
+        m_show_all.connect("activate", lambda *a: self.show_all_notes())
+        menu.append(m_show_all)
+
+        m_hide_all = Gtk.MenuItem(label=tr("hide_all_notes"))
+        m_hide_all.connect("activate", lambda *a: self.hide_all_notes())
+        menu.append(m_hide_all)
+
+        menu.append(Gtk.SeparatorMenuItem())
+
+        notes_menu = Gtk.Menu()
+        has_notes = False
+        for note_id, note in self.storage.notes.items():
+            has_notes = True
+            title = note.title.strip()
+            if not title:
+                if note.type == "todo":
+                    first_text = note.items[0].text.strip() if note.items else ""
+                    title = f"[{tr('mode_todo')}] " + (first_text[:18] + "…" if first_text else tr("untitled"))
+                else:
+                    first_line = note.content.strip().split("\n")[0] if note.content.strip() else ""
+                    title = first_line[:20] + "…" if first_line else tr("untitled")
+            prefix = "✓ " if getattr(note, "visible", True) else "   "
+            item = Gtk.MenuItem(label=f"{prefix}{title}")
+            item.connect("activate", self._on_tray_toggle_note, note_id)
+            notes_menu.append(item)
+
+        m_notes = Gtk.MenuItem(label=tr("notes"))
+        m_notes.set_submenu(notes_menu)
+        if not has_notes:
+            m_notes.set_sensitive(False)
+        menu.append(m_notes)
+
+        menu.append(Gtk.SeparatorMenuItem())
+
+        m_quit = Gtk.MenuItem(label=tr("quit"))
+        m_quit.connect("activate", lambda *a: self.quit())
+        menu.append(m_quit)
+
+        menu.show_all()
+        self._tray.set_menu(menu)
+
+    def show_all_notes(self):
+        for note in self.storage.notes.values():
+            win = self.windows.get(note.id)
+            if win:
+                win.show_note()
+            else:
+                note.visible = True
+                self.open_window(note)
+        self.save()
+        self.update_tray()
+
+    def hide_all_notes(self):
+        for win in list(self.windows.values()):
+            if win.get_visible():
+                win.hide_note()
+        self.save()
+        self.update_tray()
+
+    def _on_tray_toggle_note(self, item, note_id):
+        win = self.windows.get(note_id)
+        note = self.storage.notes.get(note_id)
+        if not note:
+            return
+        if not win:
+            note.visible = True
+            self.open_window(note)
+        elif win.get_visible():
+            win.hide_note()
+        else:
+            win.show_note()
 
 
 def main():

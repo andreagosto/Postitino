@@ -23,10 +23,19 @@ class Storage:
     def load(self):
         if not os.path.exists(self.path):
             return
+        data = None
         try:
             with open(self.path, "r", encoding="utf-8") as f:
                 data = json.load(f)
         except (OSError, ValueError):
+            bak = self.path + ".bak"
+            if os.path.exists(bak):
+                try:
+                    with open(bak, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except (OSError, ValueError):
+                    pass
+        if not data:
             return
         for d in data.get("notes", []):
             try:
@@ -40,6 +49,14 @@ class Storage:
         tmp = self.path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
+        if os.path.exists(self.path):
+            bak = self.path + ".bak"
+            try:
+                if os.path.getsize(self.path) > 0:
+                    with open(self.path, "r", encoding="utf-8") as src, open(bak, "w", encoding="utf-8") as dst:
+                        dst.write(src.read())
+            except OSError:
+                pass
         os.replace(tmp, self.path)
 
     def schedule_save(self):
