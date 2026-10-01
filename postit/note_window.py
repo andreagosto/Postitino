@@ -798,7 +798,7 @@ class NoteWindow(Gtk.Window):
     def _on_about(self, item):
         dialog = Gtk.AboutDialog(transient_for=self, modal=True)
         dialog.set_program_name("Postitino")
-        dialog.set_version("1.0.0")
+        dialog.set_version("1.0.1")
         dialog.set_comments(tr("about_text"))
         dialog.set_website("https://github.com/andreagosto/Postitino")
         dialog.set_website_label("GitHub: andreagosto/Postitino")
