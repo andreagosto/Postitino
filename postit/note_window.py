@@ -1,11 +1,12 @@
 import math
+import os
 import random
 
 import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
-from gi.repository import Gdk, GLib, Gtk, Pango
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Pango
 
 from .lang import tr
 from .model import TodoItem
@@ -795,15 +796,21 @@ class NoteWindow(Gtk.Window):
         return menu
 
     def _on_about(self, item):
-        dialog = Gtk.MessageDialog(
-            parent=self,
-            flags=Gtk.DialogFlags.MODAL,
-            message_type=Gtk.MessageType.INFO,
-            buttons=Gtk.ButtonsType.OK,
-        )
-        dialog.set_title(tr("about"))
-        dialog.set_markup("<b>Postitino</b>")
-        dialog.format_secondary_markup(tr("about_text").replace("\n", "<br/>"))
+        dialog = Gtk.AboutDialog(transient_for=self, modal=True)
+        dialog.set_program_name("Postitino")
+        dialog.set_version("1.0.0")
+        dialog.set_comments(tr("about_text"))
+        dialog.set_website("https://github.com/andreagosto/Postitino")
+        dialog.set_website_label("GitHub: andreagosto/Postitino")
+        dialog.set_copyright("© 2026 Andrea Scarafoni")
+        dialog.set_authors(["Andrea Scarafoni", "DeepSeek Flash (deepseek/deepseek-v4-flash)"])
+        try:
+            from .app import ICON_PATH
+            if os.path.exists(ICON_PATH):
+                pix = GdkPixbuf.Pixbuf.new_from_file_at_scale(ICON_PATH, 96, 96, True)
+                dialog.set_logo(pix)
+        except Exception:
+            pass
         dialog.run()
         dialog.destroy()
 

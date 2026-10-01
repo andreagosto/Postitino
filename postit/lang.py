@@ -37,9 +37,15 @@ STRINGS = {
         "quit": "Quit",
         "about": "About Postitino",
         "about_text": (
-            "Postitino for Ubuntu — desktop sticky notes.\n\n"
-            "This app was developed entirely by an AI assistant:\n"
-            "DeepSeek Flash (deepseek/deepseek-v4-flash)."
+            "Realistic desktop sticky notes for Ubuntu / GNOME.\n\n"
+            "Features:\n"
+            "• Text notes and to-do lists with checkboxes\n"
+            "• Drag & drop task reordering (and Alt+Up/Down)\n"
+            "• Per-note text size zoom (Ctrl++, Ctrl+-, Ctrl+Scroll)\n"
+            "• Customizable paper colors and straight note toggle\n"
+            "• Desktop pinned mode and Always on top\n"
+            "• Automatic local persistence and safety backups\n\n"
+            "Developed with AI pair programming (DeepSeek Flash)."
         ),
         "mode_todo": "TO-DO",
         "mode_note": "NOTE",
@@ -80,9 +86,15 @@ STRINGS = {
         "quit": "Esci",
         "about": "Informazioni su Postitino",
         "about_text": (
-            "Postitino per Ubuntu — note adesive sul desktop.\n\n"
-            "Questa app è stata sviluppata interamente da un assistente IA:\n"
-            "DeepSeek Flash (deepseek/deepseek-v4-flash)."
+            "Note adesive realistiche per il desktop Ubuntu / GNOME.\n\n"
+            "Caratteristiche:\n"
+            "• Note di testo e liste to-do con caselle di spunta\n"
+            "• Riordino dei task via drag & drop (e Alt+Su/Giù)\n"
+            "• Zoom del testo per singola nota (Ctrl++, Ctrl+-, Ctrl+Rotellina)\n"
+            "• Colori della carta personalizzati e opzione nota dritta\n"
+            "• Modalità ancorata al desktop o sempre in primo piano\n"
+            "• Persistenza automatica locale con backup di sicurezza\n\n"
+            "Sviluppato con pair programming IA (DeepSeek Flash)."
         ),
         "mode_todo": "TO-DO",
         "mode_note": "NOTA",
