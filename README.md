@@ -124,6 +124,7 @@ You can force the backend manually with `POSTIT_BACKEND`
 ## Structure
 
 ```
+CHANGELOG.md         release notes and version history
 main.py              entry point (backend selection)
 postitino.svg        application icon (SVG)
 postit/app.py        application (multi-note, tray, icon, css)
@@ -134,6 +135,10 @@ postit/storage.py    JSON persistence + backup fallback
 postit/lang.py       UI localization (EN/IT)
 install.sh           setup + autostart + icon install
 ```
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for full version history and release notes.
 
 ## Roadmap (ideas)
 
